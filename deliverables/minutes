@@ -1,0 +1,43 @@
+####### Minutes #######
+
+A. Dataset description
+(Source https://docs.fastf1.dev/#)
+
+FastF1 give access to F1 lap timing, car telemetry and position, tire data, weather data, the event schedule and session results.
+
+B. Feature description
+
+Below is an overview of the available data.
+
+Event Schedule:
+event names, countries, locations, dates, scheduled starting times,… (previous and current season including upcoming events)
+
+Results:
+driver names, team names, finishing and grid positions, points, finishing status
+
+Timing Data:
+sector times, lap times, pit stops, tire data and much more
+
+Track Status:
+flags, safety car
+
+Session Status:
+started, finished, finalized
+
+Race Control Messages:
+investigations, penalties, restart announcements
+
+Telemetry:
+speed, rpm, gear, normalized track position
+
+Track Markers:
+corner numbers, marshal sectors, marshal lights
+
+
+C. Potential questions
+
+1. Driver and track profile
+2. 
+
+Maintainer contact:
+oehrly@mailbox.org
