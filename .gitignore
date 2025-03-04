@@ -1,1 +1,6 @@
+# Ingore data as it is large
 /data
+
+# Ignore any instance of jupyter checkpoints
+**/.ipynb_checkpoints/
+

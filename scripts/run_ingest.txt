@@ -1,0 +1,5 @@
+# If LINUX run this on terminal
+python ingestion.py
+
+# If WINDOWS run this on cmd/shell
+python3 ingestion.py

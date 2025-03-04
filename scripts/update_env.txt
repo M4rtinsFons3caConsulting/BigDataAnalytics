@@ -1,0 +1,5 @@
+# If you already have a working env, and want to update it to be able to work with the 
+# current libraries for the project run this on terminal.
+
+conda activate <existing_env_name>
+conda env update --name <existing_env_name> --file ./environment

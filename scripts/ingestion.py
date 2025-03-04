@@ -3,18 +3,23 @@ import os
 import fastf1 as ff1
 import pandas as pd
 
-# Setting the working directory
-DIRECTORY = "D:\\MFC\\FF1"
+# Set the relative directory path to "../data"
+DIRECTORY = os.path.join("..", "data")
 
-# Helper creates the folders Data and cache if they do not exist, otherwise does nothing.
-os.makedirs(f'{DIRECTORY}\\Data', exist_ok=True)
-os.makedirs(f'{DIRECTORY}\\cache', exist_ok=True)
+# Check if the script is running inside a directory named "scripts"
+if os.path.basename(os.getcwd()) != "scripts":
+    print("Error: Incorrect loading sequence, please run this script in its original folder.")
+    sys.exit(1)
+    
+# Helper creates the folders data and cache if they do not exist, otherwise does nothing.
+os.makedirs(os.path.join(DIRECTORY, 'data'), exist_ok=True)
+os.makedirs(os.path.join(DIRECTORY, 'cache'), exist_ok=True)
 
 # Max columns to make it easier to visualize the data
 pd.set_option('display.max_columns', None)
 
 # Cache enabled is necessary for larger file sizes
-ff1.Cache.enable_cache('cache')
+ff1.Cache.enable_cache('../data/cache')
 
 # Race level dataframes
 _RACE_LEVEL_DATAFRAMES = \

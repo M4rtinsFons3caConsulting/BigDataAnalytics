@@ -1,1 +1,11 @@
 # BigDataAnalytics
+
+# Remember to always pull before pushing.
+
+# START HERE
+
+0. Ensure both conda, and python are both installed in your machine.
+1. Ensure that current conda environment matches project conda environment, by updating an existing environment to match the requirements or creating a new one.
+2. Run the ingestion routine to obtain the data from the API (OS specific).
+
+
