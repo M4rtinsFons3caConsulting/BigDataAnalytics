@@ -1,5 +1,7 @@
 # If LINUX run this on terminal
+conda activate <env-name>
 python ingestion.py
 
 # If WINDOWS run this on cmd/shell
+conda activate <env-name>
 python3 ingestion.py
