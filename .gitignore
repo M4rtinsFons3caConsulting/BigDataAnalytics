@@ -3,4 +3,5 @@
 
 # Ignore any instance of jupyter checkpoints
 **/.ipynb_checkpoints/
+**/__pycache__
 
