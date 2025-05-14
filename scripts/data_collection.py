@@ -13,15 +13,12 @@ fastf1.Cache.enable_cache(cache_dir)
 
 # Seasons and sessions to collect
 seasons = [2022, 2023]
-sessions = ['Q', 'R']  # Qualifying, Race
+sessions = ['R']  # Race
 
-# Define subfolders for data categories
-subfolders = ['laps', 'weather', 'telemetry']
-folder_paths = {name: os.path.join(DATA_DIR, name) for name in subfolders}
-
-# Create the subdirectories
-for path in folder_paths.values():
-    os.makedirs(path, exist_ok=True)
+# Initialize accumulators
+all_laps = []
+all_weather = []
+all_telemetry = []
 
 # Loop through events
 for year in seasons:
@@ -29,13 +26,13 @@ for year in seasons:
 
     for _, event in schedule.iterrows():
         round_num = event['RoundNumber']
-        race_name = event['EventName'].replace(' ', '_')
+        race_name = event['EventName']
 
-        # Loop through sessions
         for session_type in sessions:
             try:
                 print(f"Fetching {year} - {race_name} - {session_type}")
                 session = fastf1.get_session(year, round_num, session_type)
+
                 for attempt in range(3):
                     try:
                         session.load()
@@ -48,35 +45,44 @@ for year in seasons:
                     raise ValueError("Failed to load session after multiple attempts.")
 
                 # Laps
-                laps = session.laps
-                laps.to_csv(os.path.join(folder_paths['laps'], f"{year}_{race_name}_{session_type}.csv"), index=False)
+                laps = session.laps.copy()
+                laps['Year'] = year
+                laps['EventName'] = race_name
+                laps['Session'] = session_type
+                all_laps.append(laps)
 
                 # Weather
                 weather = session.weather_data
                 if weather is not None:
-                    weather.to_csv(os.path.join(folder_paths['weather'], f"{year}_{race_name}_{session_type}.csv"), index=False)
+                    weather = weather.copy()
+                    weather['Year'] = year
+                    weather['EventName'] = race_name
+                    weather['Session'] = session_type
+                    all_weather.append(weather)
 
                 # Telemetry
-                drivers = laps['Driver'].unique()  # Get drivers in the session
-                all_tel_data = []  # Initialize an empty list to collect session telemetry data
+                drivers = laps['Driver'].unique()
                 for drv in drivers:
-                    drv_laps = laps.pick_drivers(drv)
-                    if drv_laps.empty:
-                        continue
-
-                    # Loop over each lap for the current driver
+                    drv_laps = laps[laps['Driver'] == drv]
                     for _, lap in drv_laps.iterlaps():
-                        tel = lap.get_car_data().add_distance()  # Get telemetry data and add distance
-                        # Add driver and lap number to the telemetry data
+                        tel = lap.get_car_data().add_distance()
                         tel['Driver'] = drv
                         tel['LapNumber'] = lap['LapNumber']
-                        all_tel_data.append(tel)  # Append the data for this lap to the list
-
-                # Concatenate all the telemetry data into a single DataFrame
-                final_tel_data = pd.concat(all_tel_data, ignore_index=True)
-
-                # Save the combined telemetry data to a single CSV file
-                final_tel_data.to_csv(os.path.join(folder_paths['telemetry'], f"{year}_{race_name}_{session_type}.csv"), index=False)
+                        tel['Year'] = year
+                        tel['EventName'] = race_name
+                        tel['Session'] = session_type
+                        all_telemetry.append(tel)
 
             except Exception as e:
                 print(f"❌ Skipped {year} {race_name} {session_type}: {e}")
+
+# Save all data after loops
+if all_laps:
+    pd.concat(all_laps, ignore_index=True).to_csv(os.path.join(DATA_DIR, "laps.csv"), index=False)
+
+if all_weather:
+    pd.concat(all_weather, ignore_index=True).to_csv(os.path.join(DATA_DIR, "weather.csv"), index=False)
+
+if all_telemetry:
+    pd.concat(all_telemetry, ignore_index=True).to_csv(os.path.join(DATA_DIR, "telemetry.csv"), index=False)
+
