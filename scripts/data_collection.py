@@ -12,7 +12,7 @@ os.makedirs(cache_dir, exist_ok=True)
 fastf1.Cache.enable_cache(cache_dir)
 
 # Seasons and sessions to collect
-seasons = [2022, 2023]
+seasons = [2024]
 sessions = ['R']  # Race
 
 # Initialize accumulators
@@ -77,12 +77,12 @@ for year in seasons:
                 print(f"❌ Skipped {year} {race_name} {session_type}: {e}")
 
 # Save all data after loops
-if all_laps:
-    pd.concat(all_laps, ignore_index=True).to_csv(os.path.join(DATA_DIR, "laps.csv"), index=False)
+# if all_laps:
+#     pd.concat(all_laps, ignore_index=True).to_csv(os.path.join(DATA_DIR, "laps.csv"), index=False)
 
-if all_weather:
-    pd.concat(all_weather, ignore_index=True).to_csv(os.path.join(DATA_DIR, "weather.csv"), index=False)
+# if all_weather:
+#     pd.concat(all_weather, ignore_index=True).to_csv(os.path.join(DATA_DIR, "weather.csv"), index=False)
 
 if all_telemetry:
-    pd.concat(all_telemetry, ignore_index=True).to_csv(os.path.join(DATA_DIR, "telemetry.csv"), index=False)
+    pd.concat(all_telemetry, ignore_index=True).to_csv(os.path.join(DATA_DIR, "telemetry_2024.csv"), index=False)
 
