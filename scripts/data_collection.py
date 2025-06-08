@@ -24,57 +24,68 @@ all_telemetry = []
 for year in seasons:
     schedule = fastf1.get_event_schedule(year)
 
+    count = 0
+
     for _, event in schedule.iterrows():
-        round_num = event['RoundNumber']
-        race_name = event['EventName']
+        if count < 12:
+            pass
 
-        for session_type in sessions:
-            try:
-                print(f"Fetching {year} - {race_name} - {session_type}")
-                session = fastf1.get_session(year, round_num, session_type)
+        else:
+            round_num = event['RoundNumber']
+            race_name = event['EventName']
 
-                for attempt in range(3):
-                    try:
-                        session.load()
-                        if not session.laps.empty:
-                            break
-                        time.sleep(2)
-                    except Exception:
-                        time.sleep(2)
-                else:
-                    raise ValueError("Failed to load session after multiple attempts.")
+            for session_type in sessions:
+                try:
+                    print(f"Fetching {year} - {race_name} - {session_type}")
+                    session = fastf1.get_session(year, round_num, session_type)
 
-                # Laps
-                laps = session.laps.copy()
-                laps['Year'] = year
-                laps['EventName'] = race_name
-                laps['Session'] = session_type
-                all_laps.append(laps)
+                    for attempt in range(3):
+                        try:
+                            session.load()
+                            if not session.laps.empty:
+                                break
+                            time.sleep(2)
+                        except Exception:
+                            time.sleep(2)
+                    else:
+                        raise ValueError("Failed to load session after multiple attempts.")
 
-                # Weather
-                weather = session.weather_data
-                if weather is not None:
-                    weather = weather.copy()
-                    weather['Year'] = year
-                    weather['EventName'] = race_name
-                    weather['Session'] = session_type
-                    all_weather.append(weather)
+                    # Laps
+                    laps = session.laps.copy()
+                    laps['Year'] = year
+                    laps['EventName'] = race_name
+                    laps['Session'] = session_type
+                    all_laps.append(laps)
 
-                # Telemetry
-                drivers = laps['Driver'].unique()
-                for drv in drivers:
-                    drv_laps = laps[laps['Driver'] == drv]
-                    for _, lap in drv_laps.iterlaps():
-                        tel = lap.get_car_data().add_distance()
-                        tel['Driver'] = drv
-                        tel['LapNumber'] = lap['LapNumber']
-                        tel['Year'] = year
-                        tel['EventName'] = race_name
-                        tel['Session'] = session_type
-                        all_telemetry.append(tel)
+                    # Weather
+                    weather = session.weather_data
+                    if weather is not None:
+                        weather = weather.copy()
+                        weather['Year'] = year
+                        weather['EventName'] = race_name
+                        weather['Session'] = session_type
+                        all_weather.append(weather)
 
-            except Exception as e:
-                print(f"❌ Skipped {year} {race_name} {session_type}: {e}")
+                    # Telemetry
+                    drivers = laps['Driver'].unique()
+                    for drv in drivers:
+                        drv_laps = laps[laps['Driver'] == drv]
+                        for _, lap in drv_laps.iterlaps():
+                            tel = lap.get_car_data().add_distance()
+                            tel['Driver'] = drv
+                            tel['LapNumber'] = lap['LapNumber']
+                            tel['Year'] = year
+                            tel['EventName'] = race_name
+                            tel['Session'] = session_type
+                            all_telemetry.append(tel)
+
+                except Exception as e:
+                    print(f"❌ Skipped {year} {race_name} {session_type}: {e}")
+
+        count += 1
+    
+if all_telemetry:
+    pd.concat(all_telemetry, ignore_index=True).to_csv(os.path.join(DATA_DIR, f"telemetry_{year}_2.csv"), index=False)
 
 # Save all data after loops
 # if all_laps:
@@ -83,6 +94,4 @@ for year in seasons:
 # if all_weather:
 #     pd.concat(all_weather, ignore_index=True).to_csv(os.path.join(DATA_DIR, "weather.csv"), index=False)
 
-if all_telemetry:
-    pd.concat(all_telemetry, ignore_index=True).to_csv(os.path.join(DATA_DIR, "telemetry_2024.csv"), index=False)
 
